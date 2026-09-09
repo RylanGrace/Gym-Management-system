@@ -1,5 +1,6 @@
-package com.project.gym.model;
+package com.project.gym.DTO;
 
+import com.project.gym.model.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,4 +12,7 @@ public class RegisterDTO {
 
     private String email;
     private String password;
+    private String name;
+    private Gender gender;
+    private String phoneNo;
 }

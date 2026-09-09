@@ -1,7 +1,7 @@
 package com.project.gym.controller;
 
-import com.project.gym.model.RegisterDTO;
-import com.project.gym.model.User;
+import com.project.gym.DTO.LoginResponseDTO;
+import com.project.gym.DTO.RegisterDTO;
 import com.project.gym.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +20,11 @@ public class UserController {
     public String register(@RequestBody RegisterDTO register){
 
         return service.register(register);
+    }
+
+    @PostMapping("/login")
+    public LoginResponseDTO login(@RequestBody RegisterDTO register){
+        return service.login(register);
     }
 
 }

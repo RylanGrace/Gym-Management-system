@@ -1,10 +1,16 @@
 package com.project.gym.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Membership {
 
@@ -28,10 +34,11 @@ public class Membership {
     private LocalDate joiningDate;
     private LocalDate expiryDate;
     private LocalDateTime createdAt;
-}
 
-enum MembershipStatus {
-    SCHEDULED,
-    ACTIVE,
-    EXPIRE
+  public enum MembershipStatus {
+        SCHEDULED,
+        ACTIVE,
+        EXPIRE
+    }
+
 }
