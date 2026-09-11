@@ -38,7 +38,8 @@ public class Membership {
   public enum MembershipStatus {
         SCHEDULED,
         ACTIVE,
-        EXPIRE
+      VERIFIED,
+        EXPIRE;
     }
 
 }

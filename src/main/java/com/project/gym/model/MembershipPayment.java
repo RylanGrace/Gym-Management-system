@@ -1,10 +1,16 @@
 package com.project.gym.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class MembershipPayment {
 
@@ -18,9 +24,10 @@ public class MembershipPayment {
     private PaymentStatus status;
     private LocalDateTime paidAt;
     private String paymentReference;
+
+   public enum PaymentStatus {
+        SUCCESS,
+        FAILED
+    }
 }
 
-enum PaymentStatus {
-    SUCCESS,
-    FAILED
-}
