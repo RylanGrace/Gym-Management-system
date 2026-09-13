@@ -1,6 +1,7 @@
 package com.project.gym.controller;
 
 import com.project.gym.DTO.AssignTrainerDTO;
+import com.project.gym.DTO.ScheduledMembershipResponseDTO;
 import com.project.gym.model.Membership;
 import com.project.gym.service.MembershipService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class ManagerController {
     private MembershipService service;
 
     @GetMapping("/memberships/scheduled")
-    public List<Membership> getScheduled(){
+    public List<ScheduledMembershipResponseDTO> getScheduled(){
         return service.getScheduledMemberships();
     }
 

@@ -1,5 +1,6 @@
 package com.project.gym.service;
 
+import com.project.gym.DTO.ScheduledMembershipResponseDTO;
 import com.project.gym.DTO.TrainerMemberResponseDTO;
 import com.project.gym.DTO.TrainerSetupRequestDTO;
 import com.project.gym.model.*;
@@ -37,6 +38,12 @@ public class MembershipService {
     @Autowired
     private WorkoutSplitRepo workoutSplitRepo;
 
+    @Autowired
+    private TrainingScheduleRepo trainingScheduleRepo;
+
+    @Autowired
+    private WorkoutAssignmentRepo workoutAssignmentRepo;
+
     public void selectPlan(int memberId, int planId) {
        Member member = memberRepo.findById(memberId).orElseThrow();
         MembershipPlan plan = membershipPlanRepo.findById(planId).orElseThrow();
@@ -60,8 +67,32 @@ public class MembershipService {
         membershipPaymentRepo.save(membershipPayment);
     }
 
-    public List<Membership> getScheduledMemberships(){
-     return membershipRepo.findByStatus(Membership.MembershipStatus.SCHEDULED);
+    public List<ScheduledMembershipResponseDTO> getScheduledMemberships(){
+     List<Membership> memberships =  membershipRepo.findByStatus(Membership.MembershipStatus.SCHEDULED);
+     List<ScheduledMembershipResponseDTO> response = new ArrayList<>();
+
+     for (Membership membership : memberships) {
+
+      ScheduledMembershipResponseDTO dto =
+              new ScheduledMembershipResponseDTO();
+
+      dto.setMembershipId(membership.getId());
+
+      dto.setMemberId(membership.getMember().getId());
+      dto.setMemberName(membership.getMember().getName());
+      dto.setPhoneNo(membership.getMember().getPhoneNo());
+
+      dto.setPlanId(membership.getMembershipPlan().getId());
+      dto.setPlanName(String.valueOf(membership.getMembershipPlan().getName()));
+      dto.setDuration(membership.getMembershipPlan().getDurationMonths());
+
+      dto.setApplicationDate(membership.getApplicationDate());
+      dto.setStatus(membership.getStatus());
+
+      response.add(dto);
+     }
+
+     return response;
     }
 
     public void managerApprove(int membershipId, int trainerId){
@@ -120,6 +151,7 @@ public class MembershipService {
   WorkoutSplit split = workoutSplitRepo.findById(request.getWorkoutSplitId())
           .orElseThrow(() -> new RuntimeException("Workout split not found"));
 
+
   // 5. Validate training time
   LocalTime startTime = request.getStartTime();
   LocalTime endTime = request.getEndTime();
@@ -150,12 +182,38 @@ public class MembershipService {
   LocalDate joiningDate = LocalDate.now()
           .with(TemporalAdjusters.next(DayOfWeek.MONDAY));
 
-  membership.setJoiningDate(joiningDate);
-
   // 9. Calculate expiry date from joining date
   LocalDate expiryDate = joiningDate.plusMonths(
           membership.getMembershipPlan().getDurationMonths()
   );
+
+  membership.setJoiningDate(joiningDate);
+
+  TrainingSchedule schedule = new TrainingSchedule();
+
+  schedule.setMemberId(membership.getMember());
+  schedule.setTrainerId(membership.getTrainer());
+  schedule.setStartTime(startTime);
+  schedule.setEndTime(endTime);
+  schedule.setEffectiveForm(joiningDate);
+  schedule.setEffectiveTo(expiryDate);
+  schedule.setStatus(TrainingSchedule.ScheduleStatus.FUTURE);
+
+  trainingScheduleRepo.save(schedule);
+
+
+  WorkoutAssignment assignment = new WorkoutAssignment();
+
+  assignment.setMemberId(membership.getMember());
+  assignment.setSplitId(split);
+  assignment.setAssignedByTrainerId(membership.getTrainer());
+  assignment.setAssignedAt(LocalDateTime.now());
+  assignment.setEffectiveFrom(joiningDate);
+  assignment.setStatus(WorkoutAssignment.AssignmentStatus.SCHEDULED);
+  assignment.setEffectiveTo(expiryDate);
+  workoutAssignmentRepo.save(assignment);
+
+
 
   membership.setExpiryDate(expiryDate);
 

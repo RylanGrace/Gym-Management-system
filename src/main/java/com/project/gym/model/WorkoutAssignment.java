@@ -1,11 +1,16 @@
 package com.project.gym.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class WorkoutAssignment {
 
@@ -23,11 +28,12 @@ public class WorkoutAssignment {
     private LocalDate effectiveTo;
     @Enumerated(EnumType.STRING)
     private AssignmentStatus status;
+
+  public  enum  AssignmentStatus {
+        ACTIVE,
+        SCHEDULED,
+        ENDED;
+    }
 }
 
 
-enum  AssignmentStatus {
-    ACTIVE,
-    SCHEDULED,
-    ENDED;
-}
