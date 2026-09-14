@@ -1,14 +1,12 @@
 package com.project.gym.service;
 
 
+import com.project.gym.DTO.ExerciseResponseDTO;
+import com.project.gym.DTO.WorkoutDayResponseDTO;
 import com.project.gym.DTO.WorkoutResponseDTO;
 import com.project.gym.DTO.WorkoutSplitChangeDTO;
-import com.project.gym.model.Membership;
-import com.project.gym.model.WorkoutAssignment;
-import com.project.gym.model.WorkoutSplit;
-import com.project.gym.repository.MembershipRepo;
-import com.project.gym.repository.WorkoutAssignmentRepo;
-import com.project.gym.repository.WorkoutSplitRepo;
+import com.project.gym.model.*;
+import com.project.gym.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +14,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class WorkoutService {
@@ -28,6 +28,12 @@ public class WorkoutService {
 
     @Autowired
     private WorkoutSplitRepo workoutSplitRepo;
+
+    @Autowired
+    private WorkoutDayRepo workoutDayRepo;
+
+    @Autowired
+    private WorkoutDayExerciseRepo workoutDayExerciseRepo;
 
     public WorkoutResponseDTO getWorkout(int memberId){
         WorkoutAssignment assignment = workoutAssignmentRepo.findByMemberId_Id(memberId);
@@ -84,7 +90,7 @@ public class WorkoutService {
         assignment.setStatus(WorkoutAssignment.AssignmentStatus.SCHEDULED);
 
         WorkoutAssignment oldAssignment =
-                workoutAssignmentRepo.findByMemberIdAndStatus(membership.getMember().getId(), WorkoutAssignment.AssignmentStatus.ACTIVE);
+                workoutAssignmentRepo.findByMemberId_IdAndStatus(membership.getMember().getId(), WorkoutAssignment.AssignmentStatus.ACTIVE);
 
         if (oldAssignment != null) {
             oldAssignment.setEffectiveTo(effectiveFrom.minusDays(1));
@@ -93,6 +99,64 @@ public class WorkoutService {
         }
         workoutAssignmentRepo.save(assignment);
 
+    }
+
+    public List<WorkoutDayResponseDTO> getWorkoutDays(int memberId) {
+
+        WorkoutAssignment assignment =
+                workoutAssignmentRepo.findByMemberId_Id(memberId);
+
+        if (assignment == null) {
+            throw new RuntimeException("Workout assignment not found");
+        }
+
+        int splitId = assignment.getSplitId().getId();
+
+        List<WorkoutDay> workoutDays =
+                workoutDayRepo.findByWorkoutSplit_Id(splitId);
+
+        List<WorkoutDayResponseDTO> response = new ArrayList<>();
+
+        for (WorkoutDay workoutDay : workoutDays) {
+
+            WorkoutDayResponseDTO dayDTO = new WorkoutDayResponseDTO();
+
+            dayDTO.setWorkoutDayId(workoutDay.getId());
+            dayDTO.setDayOfWeek(workoutDay.getDayOfWeek());
+            dayDTO.setLabel(workoutDay.getLabel());
+            dayDTO.setSequenceNo(workoutDay.getSequenceNo());
+
+            List<WorkoutDayExercise> dayExercises =
+                    workoutDayExerciseRepo
+                            .findByWorkoutDay_Id(workoutDay.getId());
+
+            List<ExerciseResponseDTO> exercises = new ArrayList<>();
+
+            for (WorkoutDayExercise dayExercise : dayExercises) {
+
+                ExerciseResponseDTO exerciseDTO =
+                        new ExerciseResponseDTO();
+
+                exerciseDTO.setExerciseId(
+                        dayExercise.getExerciseId().getId());
+
+                exerciseDTO.setName(
+                        dayExercise.getExerciseId().getName());
+
+                exerciseDTO.setDescription(
+                        dayExercise.getExerciseId().getDescription());
+
+                exerciseDTO.setSequenceNo(
+                        dayExercise.getSequenceNo());
+
+                exercises.add(exerciseDTO);
+            }
+
+            dayDTO.setExercises(exercises);
+            response.add(dayDTO);
+        }
+
+        return response;
     }
 
 

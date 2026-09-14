@@ -1,6 +1,5 @@
-package com.project.gym.model;
+package com.project.gym.DTO;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,18 +8,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class Measurement {
+@AllArgsConstructor
+public class MeasurementResponseDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @ManyToOne
-    private Member memberId;
-    @ManyToOne
-    private Trainer recordedByTrainerId;
+    private int measurementId;
+    private int memberId;
+    private int trainerId;
     private LocalDate measurementDate;
     private BigDecimal heightCm;
     private BigDecimal weightKg;

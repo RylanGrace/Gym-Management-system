@@ -1,6 +1,6 @@
-package com.project.gym.model;
+package com.project.gym.DTO;
 
-import jakarta.persistence.*;
+import com.project.gym.model.EquipmentIssue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,30 +11,17 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class EquipmentIssue {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class EquipmentIssueResponseDTO {
     private int id;
-    @ManyToOne
-    private Equipment equipmentId;
-    @ManyToOne
-    private Trainer reportedByTrainerId;
+    private int equipmentId;
+    private int trainerId;
     private String issueDescription;
     private LocalDateTime reportedAt;
     private LocalDate serviceScheduledDate;
     private String servicePersonName;
     private String servicePersonContact;
     private LocalDate resolvedDate;
-    @Enumerated(EnumType.STRING)
-    private IssueStatus status;
+    private EquipmentIssue.IssueStatus status;
     private String remarks;
 
- public enum IssueStatus{
-        OPEN,
-        SCHEDULED,
-        SOLVED;
-    }
 }
-

@@ -12,7 +12,7 @@ public interface WorkoutAssignmentRepo extends JpaRepository<WorkoutAssignment, 
 
     WorkoutAssignment findByMemberId_Id(int memberId);
 
-    WorkoutAssignment findByMemberIdAndStatus(
+    WorkoutAssignment findByMemberId_IdAndStatus(
             int memberId,
             WorkoutAssignment.AssignmentStatus status
     );

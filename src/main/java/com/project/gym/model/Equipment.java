@@ -1,11 +1,18 @@
 package com.project.gym.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Equipment {
 
@@ -22,16 +29,19 @@ public class Equipment {
     private LocalDate purchaseDate;
     private LocalDate lastServicedDate;
     private LocalDateTime createdAt;
+
+ public enum EquipmentCategory {
+        CARDIO,
+        STRENGTH,
+        FREE_WEIGHT,
+        FLEXIBILITY;
+    }
+
+    public enum EquipmentStatus {
+        ACTIVE,
+        DAMAGED;
+    }
+
 }
 
-enum EquipmentCategory {
-    CARDIO,
-    STRENGTH,
-    FREE_WEIGHT,
-    FLEXIBILITY;
-}
 
-enum EquipmentStatus {
-    ACTIVE,
-    DAMAGED;
-}

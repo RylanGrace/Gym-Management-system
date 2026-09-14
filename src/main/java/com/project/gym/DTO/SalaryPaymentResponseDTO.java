@@ -1,6 +1,5 @@
-package com.project.gym.model;
+package com.project.gym.DTO;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,22 +8,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class SalaryPayment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class SalaryPaymentResponseDTO {
     private int id;
-    @ManyToOne
-    private Trainer trainerId;
-    @ManyToOne
-    private User paidByManagerId;
+    private int trainerId;
+    private int managerId;
     private YearMonth salaryMonth;
     private BigDecimal amount;
     private LocalDateTime paidAt;
     private String remarks;
+
 }

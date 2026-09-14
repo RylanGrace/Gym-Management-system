@@ -1,5 +1,6 @@
 package com.project.gym.service;
 
+import com.project.gym.DTO.MembershipResponseDTO;
 import com.project.gym.DTO.ScheduledMembershipResponseDTO;
 import com.project.gym.DTO.TrainerMemberResponseDTO;
 import com.project.gym.DTO.TrainerSetupRequestDTO;
@@ -222,5 +223,72 @@ public class MembershipService {
 
   // 11. Save membership
   membershipRepo.save(membership);
+ }
+
+ public List<MembershipResponseDTO> getMemberMemberships(int memberId) {
+
+  List<Membership> memberships =
+          membershipRepo.findAllByMember_Id(memberId);
+
+  List<MembershipResponseDTO> response = new ArrayList<>();
+
+  for (Membership membership : memberships) {
+
+   MembershipResponseDTO dto = new MembershipResponseDTO();
+
+   dto.setMembershipId(membership.getId());
+   dto.setMemberId(membership.getMember().getId());
+
+   dto.setPlanId(membership.getMembershipPlan().getId());
+   dto.setPlanName(String.valueOf(membership.getMembershipPlan().getName()));
+   dto.setDuration(membership.getMembershipPlan().getDurationMonths());
+   dto.setPrice(membership.getMembershipPlan().getPrice());
+
+   dto.setStatus(membership.getStatus());
+
+   dto.setApplicationDate(membership.getApplicationDate());
+   dto.setManagerApprovedAt(membership.getManagerApprovedAt());
+
+   if (membership.getTrainer() != null) {
+    dto.setTrainerId(membership.getTrainer().getId());
+    dto.setTrainerName(membership.getTrainer().getName());
+   }
+
+   dto.setTrainerApprovedAt(membership.getTrainerApprovedAt());
+   dto.setJoiningDate(membership.getJoiningDate());
+   dto.setExpiryDate(membership.getExpiryDate());
+
+   response.add(dto);
+  }
+
+  return response;
+ }
+
+ public List<TrainerMemberResponseDTO> getActiveMembers(int trainerId) {
+
+  List<Membership> memberships =
+          membershipRepo.findByTrainerIdAndStatus(
+                  trainerId,
+                  Membership.MembershipStatus.ACTIVE);
+
+  List<TrainerMemberResponseDTO> response = new ArrayList<>();
+
+  for (Membership membership : memberships) {
+
+   TrainerMemberResponseDTO dto =
+           new TrainerMemberResponseDTO();
+
+   dto.setMembershipId(membership.getId());
+   dto.setMemberId(membership.getMember().getId());
+   dto.setMemberName(membership.getMember().getName());
+   dto.setPhoneNo(membership.getMember().getPhoneNo());
+   dto.setStatus(membership.getStatus());
+   dto.setApplicationDate(membership.getApplicationDate());
+   dto.setManagerApprovedAt(membership.getManagerApprovedAt());
+
+   response.add(dto);
+  }
+
+  return response;
  }
 }

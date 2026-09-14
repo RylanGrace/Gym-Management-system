@@ -1,7 +1,9 @@
 package com.project.gym.service;
 
+import com.project.gym.model.Membership;
 import com.project.gym.model.TrainingSchedule;
 import com.project.gym.model.WorkoutAssignment;
+import com.project.gym.repository.MembershipRepo;
 import com.project.gym.repository.TrainingScheduleRepo;
 import com.project.gym.repository.WorkoutAssignmentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class StatusUpdateService {
 
     @Autowired
     private TrainingScheduleRepo trainingScheduleRepo;
+
+    @Autowired
+    private MembershipRepo membershipRepo;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateWorkoutAssignmentStatuses(){
@@ -47,7 +52,7 @@ public class StatusUpdateService {
         LocalDate today = LocalDate.now();
 
         List<TrainingSchedule> futureSchedules =
-                trainingScheduleRepo.findByStatusAndEffectiveFromLessThanEqual(
+                trainingScheduleRepo.findByStatusAndEffectiveFormLessThanEqual(
                         TrainingSchedule.ScheduleStatus.FUTURE,
                         today);
 
@@ -66,5 +71,22 @@ public class StatusUpdateService {
 
         trainingScheduleRepo.saveAll(futureSchedules);
         trainingScheduleRepo.saveAll(activeSchedules);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateMembershipStatuses() {
+
+        LocalDate today = LocalDate.now();
+
+        List<Membership> expiredMemberships =
+                membershipRepo.findByStatusAndExpiryDateBefore(
+                        Membership.MembershipStatus.ACTIVE,
+                        today);
+
+        for (Membership membership : expiredMemberships) {
+            membership.setStatus(Membership.MembershipStatus.EXPIRE);
+        }
+
+        membershipRepo.saveAll(expiredMemberships);
     }
 }
