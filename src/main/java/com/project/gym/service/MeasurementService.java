@@ -9,6 +9,7 @@ import com.project.gym.repository.MembershipRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,9 @@ public class MeasurementService {
                     "Trainer is not assigned to this member");
         }
 
+        if (LocalDate.now().getDayOfWeek() != DayOfWeek.MONDAY) {
+            throw new RuntimeException("Measurements can only be recorded on Monday");
+        }
         Measurement measurement = new Measurement();
 
         measurement.setMemberId(membership.getMember());

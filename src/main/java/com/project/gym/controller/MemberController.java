@@ -32,10 +32,10 @@ public class MemberController {
     }
 
     @GetMapping("/{memberId}/schedule")
-    public TrainingScheduleResponseDTO getSchedule(
+    public List<TrainingScheduleResponseDTO> getSchedule(
             @PathVariable int memberId) {
 
-        return (TrainingScheduleResponseDTO) trainingScheduleService.getMemberSchedule(memberId);
+        return  trainingScheduleService.getMemberSchedule(memberId);
     }
 
     @GetMapping("/{memberId}/measurements")

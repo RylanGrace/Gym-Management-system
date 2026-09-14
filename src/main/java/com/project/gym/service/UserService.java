@@ -6,8 +6,16 @@ import com.project.gym.repository.MemberRepo;
 import com.project.gym.repository.MembershipPlanRepo;
 import com.project.gym.repository.TrainerRepo;
 import com.project.gym.repository.UserRepo;
+import com.project.gym.security.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     @Autowired
@@ -30,14 +39,22 @@ public class UserService {
     @Autowired
     private TrainerRepo trainerRepo;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
+
+    @Autowired
+    private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtService jwtService;
 
 
     public String register(RegisterDTO register) {
         User user = new User();
         LocalDateTime currentTime = LocalDateTime.now();
         user.setEmail(register.getEmail());
-        user.setPasswordHash(register.getPassword());
+        user.setPasswordHash(passwordEncoder.encode(register.getPassword()));
         user.setRole(User.UserRole.MEMBER);
         user.setCreatedAt(currentTime);
         user.setEnabled(true);
@@ -70,10 +87,25 @@ public class UserService {
             return response;
         }
 
-        if (!Objects.equals(user.getPasswordHash(), register.getPassword())) {
+        Authentication authentication;
+
+        try {
+            authentication =
+                    authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    register.getEmail(),
+                                    register.getPassword()
+                            )
+                    );
+        } catch (BadCredentialsException e) {
             response.setMessage("Invalid email or password");
             return response;
         }
+
+        String token = jwtService.generateToken(
+                (UserDetails) Objects.requireNonNull(authentication.getPrincipal())
+        );
+
         response.setMessage("Login successful");
         response.setRole(String.valueOf(user.getRole()));
         if (user.getRole() == User.UserRole.MEMBER) {
